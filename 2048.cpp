@@ -1,5 +1,4 @@
 #include <iostream>
-//lalalal
 #include <vector>
 #include <time.h>
 #include <iomanip>
