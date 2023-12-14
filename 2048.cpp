@@ -34,6 +34,25 @@ float feat_estimate(Board b, Pattern transpose[2]) {
     return score;
 }
 
+Board popup(Board b){
+    vector<int> posBuffer;
+    Board newb = b;
+    for (int i = 0; i < 16; i++){
+        int r = i / 4;
+        int c = i % 4;
+        if (newb[r][c] == 0) {
+            posBuffer.push_back(i);
+        }
+    }
+    if (posBuffer.size() > 0) {
+        int pos = rand() % posBuffer.size();
+        int r = pos / 4;
+        int c = pos % 4;
+        newb[r][c] =  rand() % 10 ? 2 : 4;
+    }
+    return newb;
+}
+
 Board move_up(Board b) {
     Board newb = b;
     for (int y = 0; y < 4; y++) {
@@ -199,10 +218,10 @@ _2048_ initialize() {
     my2048.transpose[0] = {0,1,4,5,8,9,1,2,3,5,6,7,6,7,10,11,14,15,4,5,8,9,12,13,0,1,4,5,8,9,2,3,6,7,10,11,6,7,10,11,14,15,4,5,8,9,12,13};
     my2048.transpose[1] = {0,1,2,3,4,5,2,3,6,7,11,15,10,11,12,13,14,15,0,4,8,9,12,13,0,1,2,3,4,5,0,1,2,3,6,7,10,11,12,13,14,15,8,9,12,13,14,15};
     my2048.board = {
-        {0,16,0,0},
-        {0,0,0,1024},
-        {0,2,32,0},
-        {0,0,0,64}
+        {0,2,2,4},
+        {0,0,0,0},
+        {0,0,0,0},
+        {0,0,0,4}
     };
     return my2048;
 }
@@ -213,7 +232,9 @@ int main() {
 
     time_t start, end;
     start = time(NULL);
-    while (!game_over(my2048.board)) {
+    // !game_over(my2048.board)
+    int k = 0;
+    while (k < 40) {
         // stage: 0 1 2 3 => up down left right
         float Scores[4];
         for (int stage = 0; stage < 4; stage++) {
@@ -250,13 +271,24 @@ int main() {
                 max_sc = Scores[stage];
             }
         }
+        cout << best_move << endl;
         my2048.board = next_move(my2048.board, best_move);
 
+        my2048.board = popup(my2048.board);
+        
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                cout << setw(4) << my2048.board[x][y] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
         // popup {
         //     input Board b; 
         //     return newb;
         // }
         // break;
+        k++;
     }
     end = time(NULL);
     cout << "Game Over !!" << endl;
