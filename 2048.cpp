@@ -38,7 +38,7 @@ float feat_estimate(Board b, Pattern transpose[2]) {
 Board popup(Board b, unsigned int seed){
     vector<int> posBuffer;
     Board newb = b;
-    srand((unsigned int)time(NULL));
+    // unsigned int seed = time(NULL);
     for (int i = 0; i < 16; i++){
         int r = i / 4;
         int c = i % 4;
@@ -47,10 +47,10 @@ Board popup(Board b, unsigned int seed){
         }
     }
     if (posBuffer.size() > 0) {
-        int pos = rand() % posBuffer.size();
+        int pos = rand_r(&seed) % posBuffer.size();
         int r = posBuffer[pos] / 4;
         int c = posBuffer[pos] % 4;
-        newb[r][c] =  rand() % 10 ? 2 : 4;
+        newb[r][c] =  rand_r(&seed) % 10 ? 2 : 4;
     }
     return newb;
 }
@@ -236,9 +236,10 @@ int main() {
     begin = time(NULL);
 
     float total_score = 0;
-    int games = 1000000;
+    int games = 1000;
 
     for (int count = 0; count < games; count++) {
+        my2048 = initialize();
         while (!game_over(my2048.board)) {
             // stage: 0 1 2 3 => up down left right
             float Scores[4];
