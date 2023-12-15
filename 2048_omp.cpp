@@ -1,8 +1,8 @@
 #include <iostream>
-// #include <cstdlib>
 #include <vector>
 #include <time.h>
 #include <iomanip>
+#include <omp.h>
 
 using namespace std;
 
@@ -243,29 +243,33 @@ int main() {
         while (!game_over(my2048.board)) {
             // stage: 0 1 2 3 => up down left right
             float Scores[4];
-            for (int stage = 0; stage < 4; stage++) {
-                Board moved_board = next_move(my2048.board, stage);
-                int count_empty_lattice = 0;
-                float tmp_estimate = 0.0;
-                for (int lattice = 0; lattice < 16; lattice++) {
-                    int r = lattice / 4;
-                    int c = lattice % 4;
-                    if (moved_board[r][c] == 0) {
-                        // random generate 2 in board(r,c)
-                        moved_board[r][c] = 2;
-                        tmp_estimate += 0.9 * feat_estimate(moved_board, my2048.transpose);
+            #pragma omp parallel
+            {
+                #pragma omp for
+                for (int stage = 0; stage < 4; stage++) {
+                    Board moved_board = next_move(my2048.board, stage);
+                    int count_empty_lattice = 0;
+                    float tmp_estimate = 0.0;
+                    for (int lattice = 0; lattice < 16; lattice++) {
+                        int r = lattice / 4;
+                        int c = lattice % 4;
+                        if (moved_board[r][c] == 0) {
+                            // random generate 2 in board(r,c)
+                            moved_board[r][c] = 2;
+                            tmp_estimate += 0.9 * feat_estimate(moved_board, my2048.transpose);
 
-                        // random generate 4 in board(r,c)
-                        moved_board[r][c] = 4;
-                        tmp_estimate += 0.1 * feat_estimate(moved_board, my2048.transpose);
+                            // random generate 4 in board(r,c)
+                            moved_board[r][c] = 4;
+                            tmp_estimate += 0.1 * feat_estimate(moved_board, my2048.transpose);
 
-                        ++count_empty_lattice;
+                            ++count_empty_lattice;
+                        }
                     }
+                    if(count_empty_lattice != 0)
+                        tmp_estimate /= count_empty_lattice;
+                    // cout << SumOfBoard(moved_board) + tmp_estimate << endl;
+                    Scores[stage] = SumOfBoard(moved_board) + tmp_estimate;
                 }
-                if(count_empty_lattice != 0)
-                    tmp_estimate /= count_empty_lattice;
-                // cout << SumOfBoard(moved_board) + tmp_estimate << endl;
-                Scores[stage] = SumOfBoard(moved_board) + tmp_estimate;
             }
 
             // 選出Scores最高的,當作移動的決策
