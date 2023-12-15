@@ -1,4 +1,5 @@
 #include <iostream>
+// #include <cstdlib>
 #include <vector>
 #include <time.h>
 #include <iomanip>
@@ -34,9 +35,10 @@ float feat_estimate(Board b, Pattern transpose[2]) {
     return score;
 }
 
-Board popup(Board b){
+Board popup(Board b, unsigned int seed){
     vector<int> posBuffer;
     Board newb = b;
+    srand((unsigned int)time(NULL));
     for (int i = 0; i < 16; i++){
         int r = i / 4;
         int c = i % 4;
@@ -218,9 +220,9 @@ _2048_ initialize() {
     my2048.transpose[0] = {0,1,4,5,8,9,1,2,3,5,6,7,6,7,10,11,14,15,4,5,8,9,12,13,0,1,4,5,8,9,2,3,6,7,10,11,6,7,10,11,14,15,4,5,8,9,12,13};
     my2048.transpose[1] = {0,1,2,3,4,5,2,3,6,7,11,15,10,11,12,13,14,15,0,4,8,9,12,13,0,1,2,3,4,5,0,1,2,3,6,7,10,11,12,13,14,15,8,9,12,13,14,15};
     my2048.board = {
-        {4,0,4,16},
-        {0,0,0,4},
-        {0,16,16,2},
+        {0,0,0,0},
+        {0,0,0,0},
+        {0,2,0,0},
         {0,0,0,0}
     };
     return my2048;
@@ -230,66 +232,75 @@ int main() {
     _2048_ my2048;
     my2048 = initialize();
 
-    time_t start, end;
-    start = time(NULL);
+    time_t begin, end;
+    begin = time(NULL);
 
-    while (!game_over(my2048.board)) {
-        // stage: 0 1 2 3 => up down left right
-        float Scores[4];
-        for (int stage = 0; stage < 4; stage++) {
-            Board moved_board = next_move(my2048.board, stage);
-            int count_empty_lattice = 0;
-            float tmp_estimate = 0.0;
-            for (int lattice = 0; lattice < 16; lattice++) {
-                int r = lattice / 4;
-                int c = lattice % 4;
-                if (moved_board[r][c] == 0) {
-                    // random generate 2 in board(r,c)
-                    moved_board[r][c] = 2;
-                    tmp_estimate += 0.9 * feat_estimate(moved_board, my2048.transpose);
+    float total_score = 0;
+    int games = 1000000;
 
-                    // random generate 4 in board(r,c)
-                    moved_board[r][c] = 4;
-                    tmp_estimate += 0.1 * feat_estimate(moved_board, my2048.transpose);
+    for (int count = 0; count < games; count++) {
+        while (!game_over(my2048.board)) {
+            // stage: 0 1 2 3 => up down left right
+            float Scores[4];
+            for (int stage = 0; stage < 4; stage++) {
+                Board moved_board = next_move(my2048.board, stage);
+                int count_empty_lattice = 0;
+                float tmp_estimate = 0.0;
+                for (int lattice = 0; lattice < 16; lattice++) {
+                    int r = lattice / 4;
+                    int c = lattice % 4;
+                    if (moved_board[r][c] == 0) {
+                        // random generate 2 in board(r,c)
+                        moved_board[r][c] = 2;
+                        tmp_estimate += 0.9 * feat_estimate(moved_board, my2048.transpose);
 
-                    ++count_empty_lattice;
+                        // random generate 4 in board(r,c)
+                        moved_board[r][c] = 4;
+                        tmp_estimate += 0.1 * feat_estimate(moved_board, my2048.transpose);
+
+                        ++count_empty_lattice;
+                    }
+                }
+                if(count_empty_lattice != 0)
+                    tmp_estimate /= count_empty_lattice;
+                // cout << SumOfBoard(moved_board) + tmp_estimate << endl;
+                Scores[stage] = SumOfBoard(moved_board) + tmp_estimate;
+            }
+
+            // 選出Scores最高的,當作移動的決策
+            int max_sc = Scores[0];
+            int best_move = 0;
+            for (int stage = 1; stage < 4; stage++) {
+                if (Scores[stage] > max_sc) {
+                    best_move = stage;
+                    max_sc = Scores[stage];
                 }
             }
-            if(count_empty_lattice != 0)
-                tmp_estimate /= count_empty_lattice;
-            // cout << SumOfBoard(moved_board) + tmp_estimate << endl;
-            Scores[stage] = SumOfBoard(moved_board) + tmp_estimate;
+            // cout << best_move << endl;
+            my2048.board = next_move(my2048.board, best_move);
+            my2048.board = popup(my2048.board, count);
+            
+            // for (int x = 0; x < 4; x++) {
+            //     for (int y = 0; y < 4; y++) {
+            //         cout << setw(4) << my2048.board[x][y] << " ";
+            //     }
+            //     cout << endl;
+            // }
+            // cout << endl;
         }
-
-        // 選出Scores最高的,當作移動的決策
-        int max_sc = Scores[0];
-        int best_move = 0;
-        for (int stage = 1; stage < 4; stage++) {
-            if (Scores[stage] > max_sc) {
-                best_move = stage;
-                max_sc = Scores[stage];
-            }
-        }
-        // cout << best_move << endl;
-        my2048.board = next_move(my2048.board, best_move);
-        my2048.board = popup(my2048.board);
-        
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
-                cout << setw(4) << my2048.board[x][y] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
+        // cout << "Game Over !!" << endl;
+        // for (int x = 0; x < 4; x++) {
+        //     for (int y = 0; y < 4; y++) {
+        //         cout << setw(4) << my2048.board[x][y] << " ";
+        //     }
+        //     cout << endl;
+        // }
+        // cout << SumOfBoard(my2048.board) << endl;
+        total_score += SumOfBoard(my2048.board);
     }
+    
     end = time(NULL);
-    cout << "Game Over !!" << endl;
-    for (int x = 0; x < 4; x++) {
-        for (int y = 0; y < 4; y++) {
-            cout << setw(4) << my2048.board[x][y] << " ";
-        }
-        cout << endl;
-    }
-    cout << "Scores: " << SumOfBoard(my2048.board) << endl;
-    cout << "Execution Time: " << difftime(start, end) << endl;
+    
+    cout << "Average Score: " << total_score / games << endl;
+    cout << "Execution Time: " << difftime(end, begin) << endl;
 }
