@@ -1,0 +1,48 @@
+./2048_serial_1000
+Average Score: 313.948
+Execution Time: 9
+
+./2048_pthread_1000
+Average Score: 313.948
+Execution Time: 17
+
+2048_mpi_1000
+Average Score: 313.948
+Execution Time: 5
+
+./2048_openmp_1000
+Average Score: 313.948
+Execution Time: 4
+
+./2048_serial_10000
+Average Score: 318.226
+Execution Time: 87
+
+./2048_pthread_10000
+Average Score: 318.226
+Execution Time: 179
+
+2048_mpi_10000
+Average Score: 318.226
+Execution Time: 49
+
+./2048_openmp_10000
+Average Score: 318.226
+Execution Time: 46
+
+./2048_serial_100000
+Average Score: 319.165
+Execution Time: 816
+
+./2048_pthread_100000
+Average Score: 319.165
+Execution Time: 1727
+
+2048_mpi_100000
+Average Score: 319.165
+Execution Time: 484
+
+./2048_openmp_100000
+Average Score: 319.165
+Execution Time: 454
+
