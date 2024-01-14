@@ -14,7 +14,7 @@ Core Threads: 12
 # Run
 Serial
 ```
-g++ 2048_serial.cpp -o 2048_serial
+g++ 2048_serial.cpp -o 2048_serial.o --std=c++17
 ./2048_serial
 ```
 MPI

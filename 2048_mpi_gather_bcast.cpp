@@ -11,6 +11,8 @@ using namespace std;
 typedef vector<vector<int>> Board;
 typedef vector<int> Pattern;
 
+int GAMES = 10000;
+
 typedef struct _2048_
 {
     Board board;
@@ -306,7 +308,7 @@ int main(int argc, char **argv)
     }
 
     float total_score = 0;
-    int games = 10000;
+    int games = GAMES;
 
     for (int count = 0; count < games; count++)
     {

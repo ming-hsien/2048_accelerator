@@ -12,6 +12,8 @@ using namespace std;
 typedef vector<vector<int>> Board;
 typedef vector<int> Pattern;
 
+int GAMES = 10000;
+
 typedef struct student
 {
     Board board;
@@ -320,7 +322,7 @@ int main()
     begin = time(NULL);
 
     float total_score = 0;
-    int games = 1000;
+    int games = GAMES;
 
     for (int count = 0; count < games; count++)
     {
